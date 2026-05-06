@@ -1,0 +1,109 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+bool isSafe(vector<vector<int>>& board, int row, int col, int N) {
+
+    // Check left row
+    for (int i = 0; i < col; i++) {
+        if (board[row][i] == 1)
+            return false;
+    }
+
+    // Upper diagonal
+    for (int i=row, j=col; i>=0 && j>=0; i--, j--) {
+        if (board[i][j] == 1)
+            return false;
+    }
+
+    // Lower diagonal
+    for (int i=row, j=col; i<N && j>=0; i++, j--) {
+        if (board[i][j] == 1)
+            return false;
+    }
+
+    return true;
+}
+
+bool solveNQ(vector<vector<int>>& board, int col, int N) {
+
+    // All queens placed
+    if (col >= N)
+        return true;
+
+    // Skip already occupied column
+    bool queenExists = false;
+
+    for (int i = 0; i < N; i++) {
+        if (board[i][col] == 1) {
+            queenExists = true;
+            break;
+        }
+    }
+
+    if (queenExists)
+        return solveNQ(board, col + 1, N);
+
+    // Try rows
+    for (int i = 0; i < N; i++) {
+
+        if (isSafe(board, i, col, N)) {
+
+            board[i][col] = 1;
+
+            if (solveNQ(board, col + 1, N))
+                return true;
+
+            // BACKTRACK
+            board[i][col] = 0;
+        }
+    }
+
+    return false;
+}
+
+void printBoard(vector<vector<int>>& board, int N) {
+
+    cout << "\nSolution Board:\n\n";
+
+    for (int i = 0; i < N; i++) {
+
+        for (int j = 0; j < N; j++) {
+
+            if (board[i][j] == 1)
+                cout << "Q ";
+            else
+                cout << ". ";
+        }
+
+        cout << endl;
+    }
+}
+
+int main() {
+
+    int N;
+    int firstRow, firstCol;
+
+    cout << "Enter number of queens: ";
+    cin >> N;
+
+    vector<vector<int>> board(N, vector<int>(N, 0));
+
+    cout << "Enter first queen row (0 to " << N-1 << "): ";
+    cin >> firstRow;
+
+    cout << "Enter first queen column (0 to " << N-1 << "): ";
+    cin >> firstCol;
+
+    // Place first queen
+    board[firstRow][firstCol] = 1;
+
+    // Solve remaining board
+    if (solveNQ(board, 0, N))
+        printBoard(board, N);
+    else
+        cout << "No solution exists.";
+
+    return 0;
+}
